@@ -1,0 +1,4 @@
+*.pdf
+dataset2/CleanedDataset.csv
+*.csv
+PivotedDataset.csv
