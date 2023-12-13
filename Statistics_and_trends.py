@@ -18,6 +18,7 @@ INDICATOR_CODES =["SE.TER.CUAT.BA.FE.ZS", "SE.TER.CUAT.BA.MA.ZS","SE.TER.CUAT.BA
                    "GC.XPN.TOTL.GD.ZS", "AG.LND.FRST.ZS", "NY.GDP.PCAP.KD.ZG", "NY.GNS.ICTR.ZS",
                    "NY.GNS.ICTR.GN.ZS", "ST.INT.ARVL", "SL.TLF.TOTL.IN", "SP.DYN.LE00.IN", "SP.POP.GROW",
                    "SP.POP.TOTL.FE.IN", "SP.POP.TOTL.MA.IN","SP.RUR.TOTL.ZS","SP.URB.TOTL.IN.ZS","GB.XPD.RSDV.GD.ZS"]
+
 # Mapping of indicator codes to indicator names
 feature_map = {
     "SE.TER.CUAT.BA.FE.ZS": "Educational attainment,population 25+, female (%)",
@@ -43,8 +44,8 @@ feature_map = {
     "SP.POP.TOTL.MA.IN": "Population, male",
     "SP.RUR.TOTL.ZS":"Rural population (% of total population)",
     "SP.URB.TOTL.IN.ZS":"Urban population (% of total population)",
-    "GB.XPD.RSDV.GD.ZS":"Research and development expenditure (% of GDP)"}
-
+    "GB.XPD.RSDV.GD.ZS":"Research and development expenditure (% of GDP)"
+    }
 
 #Mapping of country code to country name
 countryMap = {
@@ -64,12 +65,13 @@ countryMap = {
 # Reading data set using pandas.
 # use of melt and pivot methods in dataframe.
 def getDataset(dataUrl):
-        """ Function to  read a dataset and Transpose using pandas
+    """ Function to  read a dataset and Transpose using pandas
     Args:
         dataUrl (uri): This argument takes a path to the dataset 
      Returns:
         Returns a transposed dataframe after melt and pivot operations on the dataUrl that was passed.
     """
+
     dataset = pd.read_csv(dataUrl)
     melted_df = dataset.melt(id_vars=[
         'Country Name', 'Country Code', 'Indicator Name', 'Indicator Code'], var_name='Year', value_name='Value')
@@ -77,20 +79,24 @@ def getDataset(dataUrl):
         index=['Country Name', 'Country Code', 'Year'], columns='Indicator Code', values='Value').reset_index()
     Transposed_df.to_csv('PivotedDataset.csv')
     return Transposed_df
-def cleanDataSet(dataset):
-        """ Function to clean a dataset
 
+
+def cleanDataSet(dataset):
+    """ Function to clean a dataset
     Args:
         dataset: Dataset which needs to be cleaned is passed as an argument.
 
     Returns:
         _Returns a cleaned dataset after removing null values and indicators which are not useful.
     """
+
     filtered_columns = [col for col in dataset.columns if col in INDICATOR_CODES]
     df_filtered = getDataset(Original_dataUri)[filtered_columns]
     df_cleaned = df_filtered.fillna(df_filtered.mean())
     df_cleaned.to_csv('CleanedDataset1.csv')
     return cleaned_df
+
+
 df_filtered = pd.read_csv('CleanedDataset1.csv')
 
 #Using describe method to find statistical properties
@@ -117,6 +123,7 @@ def calculate_skewness_kurtosis(data):
     Returns:
     - tuple: A tuple containing two values - skewness and kurtosis.
     """
+
     skewness = skew(data)
     kurt = kurtosis(data)
     return skewness, kurt
@@ -148,6 +155,7 @@ def bootstrap(data, num_iterations=1000, confidence_level=0.95):
 
     return confidence_intervals
 
+
 # Analyze and compare indicators
 for indicator in indicators_of_interest:
     print(f"\nStatistical properties for indicator: {indicator}\n")
@@ -168,7 +176,8 @@ for indicator in indicators_of_interest:
         print(f"Kurtosis: {kurt:.4f}")
         print(f"95% Confidence Intervals for Skewness: [{confidence_intervals[0][0]:.4f}, {confidence_intervals[1][0]:.4f}]")
         print(f"95% Confidence Intervals for Kurtosis: [{confidence_intervals[0][1]:.4f}, {confidence_intervals[1][1]:.4f}]\n")
-        def plot_correlation_heatmap(df, country_name, selected_indices, feature_map, country_map, figure_number):
+    
+def plot_correlation_heatmap(df, country_name, selected_indices, feature_map, country_map, figure_number):
     
     # Selecting only the columns corresponding to the selected indices
     df_selected = df_filtered[['Country Name', 'Country Code', 'Year'] + selected_indices]
@@ -232,8 +241,10 @@ plot_correlation_heatmap(df_filtered, "Singapore", selected_indices, feature_map
 
 # Plot correlation matrix and heatmap for India
 plot_correlation_heatmap(df_filtered, "India", selected_indices, feature_map, country_map, 3)
+
+
 def plot_grouped_bar_chart(df, countries, years, indicator_column, title, xlabel, ylabel, palette, figure_number):
-        """
+    """
     Plot a grouped bar chart to visualize the specified indicator for selected countries over different years.
 
     Parameters:
@@ -248,7 +259,8 @@ def plot_grouped_bar_chart(df, countries, years, indicator_column, title, xlabel
     - figure_number (int): The figure number for saving the chart.
 
     Returns:
-    - None: Displays the grouped bar chart."""
+    - None: Displays the grouped bar chart.
+    """
     
     filtered_data = df[
         (df['Country Name'].isin(countries)) &
@@ -301,8 +313,10 @@ plot_grouped_bar_chart(
     palette_gdp_growth,
     2
 )
+
+
 def plot_gdp_scatter(df, country_names, indicator_column):
-        """
+    """
     Generate a scatter plot to compare GDP per capita growth between specified countries.
 
     Parameters:
@@ -312,7 +326,8 @@ def plot_gdp_scatter(df, country_names, indicator_column):
 
     Returns:
     - None: Displays the scatter plot.
-        """
+    """
+
     plt.figure(figsize=(10, 6))
 
     for country_name in country_names:
@@ -345,6 +360,8 @@ country_names = ['United Kingdom', 'United States']
 
 # Call the function
 plot_gdp_scatter(df_filtered, country_names, indicator_column)
+
+
 def plot_indicators_for_country(ax, df, country_name, selected_indicators, indicator_labels):
     """
     Plot line graphs to compare specific economic indicators for a given country over time.
@@ -359,6 +376,7 @@ def plot_indicators_for_country(ax, df, country_name, selected_indicators, indic
     Returns:
     - None: Displays the line graphs on the specified Axes object.
     """
+
     # Selecting the data for a specific country
     country_data = df[df['Country Name'] == country_name]
 
@@ -384,15 +402,18 @@ selected_indicators_india = ["GC.XPN.TOTL.GD.ZS", "NY.GNS.ICTR.ZS"]
 indicator_labels_india = ["Expense (% of GDP)", "Gross Savings (% of GDP)"]
 plot_indicators_for_country(axs[0], df_filtered, 'India', selected_indicators_india, indicator_labels_india)
 
+
 # Example usage for Australia
 selected_indicators_australia = ["GC.XPN.TOTL.GD.ZS", "NY.GNS.ICTR.ZS"]
 indicator_labels_australia = ["Expense (% of GDP)", "Gross Savings (% of GDP)"]
 plot_indicators_for_country(axs[1], df_filtered, 'Australia', selected_indicators_australia, indicator_labels_australia)
 
+
 # Example usage for United States
 selected_indicators_us = ["GC.XPN.TOTL.GD.ZS", "NY.GNS.ICTR.ZS"]
 indicator_labels_us = ["Expense (% of GDP)", "Gross Savings (% of GDP)"]
 plot_indicators_for_country(axs[2], df_filtered, 'United States', selected_indicators_us, indicator_labels_us)
+
 
 # Adjust layout
 plt.tight_layout()
